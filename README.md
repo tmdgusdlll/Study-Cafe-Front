@@ -1,32 +1,26 @@
-# React + TypeScript + Vite
+# Study-Cafe Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+공부 세션으로 포인트를 모으고 상점에서 아이템을 구매하는 스터디카페 서비스의 프론트엔드입니다.
 
-Currently, two official plugins are available:
+- 백엔드: [Study-Cafe](https://github.com/tmdgusdlll/Study-Cafe) (Spring Boot, Render 배포)
+- 배포: Vercel
+- 진행 상황: [`docs/WORKLOG.md`](docs/WORKLOG.md)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 기술 스택
 
-## React Compiler
+- React 19 + TypeScript + Vite
+- Tailwind CSS v4
+- TanStack Query (서버 상태)
+- React Router
+- Motion (애니메이션)
+- Oxlint
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 실행 방법
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # 개발 서버
+npm run build    # 타입 체크 + 프로덕션 빌드
+npm run lint     # Oxlint
+npm run preview  # 빌드 결과 미리보기
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
