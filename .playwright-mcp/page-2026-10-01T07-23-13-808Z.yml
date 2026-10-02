@@ -1,0 +1,22 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - link "Study-Cafe" [ref=e5] [cursor=pointer]:
+      - /url: /
+    - button "라이트 모드로" [ref=e7]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - heading "자리 하나 맡아둘게요" [level=1] [ref=e13]
+      - paragraph [ref=e14]: 이메일과 비밀번호를 정하면 닉네임만 남아요.
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]: 이메일
+          - textbox "이메일" [ref=e18]
+        - generic [ref=e19]:
+          - generic [ref=e20]: 비밀번호
+          - textbox "비밀번호" [ref=e21]:
+            - /placeholder: 8~20자
+      - button "다음" [ref=e22]
+      - paragraph [ref=e23]:
+        - text: 이미 계정이 있나요?
+        - link "로그인" [ref=e24] [cursor=pointer]:
+          - /url: /login

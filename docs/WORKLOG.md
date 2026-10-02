@@ -4,7 +4,7 @@
 
 ## 현재 위치 (한눈 요약)
 
-- **프론트**: Vite+React+TS 골격 셋업 완료 (Tailwind v4 + TanStack Query + React Router + Motion), 아직 화면 미구현
+- **프론트**: 랜딩·로그인·회원가입·홈(공부 세션·포인트)·상점(준비 중) 화면을 목 데이터로 구현 완료. 설계 `docs/main-screen-design.md`, 디자인 시스템 `DESIGN.md`
 - **백엔드 연동 가능 API**: 회원 인증 / 공부 세션 / 포인트(적립·차감·이력) / 상점(목록·구매·보유)
 - **레포 구조**: `Study-Cafe/backend`(레포1, →Render) + `Study-Cafe/frontend`(레포2, →Vercel)
 
@@ -19,14 +19,19 @@
 
 ## 다음 할 일 (우선순위 순)
 
-- [ ] 프론트 메인 화면 구현 (brainstorming → design-consultation → 스타일 선택 → design-taste-frontend → 검수)
-- [ ] 프론트 첫 커밋 + GitHub frontend 레포 생성/연결
-- [ ] 로그인/회원가입 화면 — 백엔드 `/api/v1/members` API 연동 (API 클라이언트 + 토큰 저장부터)
-- [ ] 세션 타이머 / 포인트 / 상점 화면
+- [x] 프론트 메인 화면 구현 (목 데이터) — `docs/main-screen-design.md`
+- [x] 프론트 첫 커밋 + GitHub frontend 레포 생성/연결
+- [ ] 카페 손님 표시 + 1:1 대화 설계 — 실제 사용자(WebSocket + STOMP) + NPC(백엔드 RAG) (`docs/main-screen-design.md` "다음 작업")
+- [ ] 백엔드 연동 — `src/api/*.ts`의 mock 함수를 fetch로 교체 (회원 → 포인트 → 공부 세션 순)
+- [ ] 상점 화면
 
 ## 작업 일지 (최신순)
 
 ### 2026-10-01
+- `/grill-me`로 메인 화면 설계 확정 → `docs/main-screen-design.md`
+- `/design-consultation`으로 디자인 시스템 확정 ("늦은 밤 단골 카페", Fraunces + Pretendard, 램프 앰버) → `DESIGN.md`. AI 목업 도구는 OpenAI 키가 없어 HTML 미리보기로 대체
+- 메인 화면 구현 (목 데이터): 시간대별 SVG 카페 장면, 카운트다운 세션(일시정지·접기 알약·새로고침 이어가기·탭 재오픈 시 일시정지), 영수증 결과 카드, 포인트 적립 연출, 다크 모드, 카페 소리(CC0, Freesound #437461)
+- 목 API는 백엔드와 같은 응답 형식·에러 코드·검증 문구 사용. 셀프 체크 `node src/lib/session.check.ts`
 - 레포 재구성: 프론트용 `Study-Cafe/frontend/` 신설(별도 레포), 기존 백엔드는 `Study-Cafe/backend/`로 이동
 - 프론트 스캐폴딩: Vite + React + TS + Tailwind v4 + TanStack Query + React Router, 빌드 검증 통과, `git init`(아직 미커밋)
 - 배포 방향 확정: 프론트=Vercel / 백엔드=Render (레포 2개 분리)

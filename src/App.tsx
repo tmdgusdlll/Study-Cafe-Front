@@ -1,19 +1,35 @@
-import { Route, Routes } from 'react-router-dom'
+import { MotionConfig } from 'motion/react'
+import type { ReactNode } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { getAccessToken } from './api/auth.ts'
+import Home from './pages/Home.tsx'
+import Landing from './pages/Landing.tsx'
+import Login from './pages/Login.tsx'
+import Shop from './pages/Shop.tsx'
+import Signup from './pages/Signup.tsx'
 
-// 임시 홈 — Tailwind 동작 확인용. 실제 화면(로그인/세션/상점)은 이후 추가
-function Home() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-2">
-      <h1 className="text-3xl font-bold">Study-Cafe</h1>
-      <p className="text-gray-500">프론트 골격 준비 완료</p>
-    </div>
-  )
+// 로그아웃 상태로 홈·상점에 오면 랜딩으로
+function RequireAuth({ children }: { children: ReactNode }) {
+  return getAccessToken() ? children : <Navigate to="/" replace />
+}
+
+// 로그인 상태로 랜딩·로그인·회원가입에 오면 홈으로
+function GuestOnly({ children }: { children: ReactNode }) {
+  return getAccessToken() ? <Navigate to="/home" replace /> : children
 }
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-    </Routes>
+    // OS "동작 줄이기" 설정 존중
+    <MotionConfig reducedMotion="user">
+      <Routes>
+        <Route path="/" element={<GuestOnly><Landing /></GuestOnly>} />
+        <Route path="/login" element={<GuestOnly><Login /></GuestOnly>} />
+        <Route path="/signup" element={<GuestOnly><Signup /></GuestOnly>} />
+        <Route path="/home" element={<RequireAuth><Home /></RequireAuth>} />
+        <Route path="/shop" element={<RequireAuth><Shop /></RequireAuth>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </MotionConfig>
   )
 }

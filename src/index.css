@@ -1,1 +1,147 @@
 @import "tailwindcss";
+
+/* html.dark 클래스로 다크 모드 (OS 기본 + 토글) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 색 토큰 — DESIGN.md 기준 */
+:root {
+  --paper: #F6EFE4;
+  --paper-2: #EFE5D6;
+  --ink: #2B1E16;
+  --muted: #7A6656;
+  --line: #2B1E1622;
+  --amber: #D9822B;
+  --amber-ink: #FFF8EE;
+  --sage: #7C8B6F;
+  --danger: #B5523B;
+  --panel: rgba(246, 239, 228, 0.78);
+  --panel-line: rgba(255, 255, 255, 0.55);
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #1A1411;
+  --paper-2: #231B17;
+  --ink: #F3E9DC;
+  --muted: #A8968A;
+  --line: #F3E9DC1f;
+  --amber: #F2A65A;
+  --amber-ink: #1A1411;
+  --sage: #9AAA8B;
+  --panel: rgba(26, 20, 17, 0.72);
+  --panel-line: rgba(255, 255, 255, 0.08);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-amber: var(--amber);
+  --color-amber-ink: var(--amber-ink);
+  --color-sage: var(--sage);
+  --color-danger: var(--danger);
+  --font-serif: "Fraunces", "Pretendard Variable", serif;
+  --font-sans: "Pretendard Variable", Pretendard, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  /* 장면 위에 뜨는 반투명 패널 */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  }
+
+  /* 메뉴판 같은 세리프 숫자 — 폭이 흔들리지 않게 고정폭 */
+  .display-digits {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-variation-settings: "opsz" 144;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-transparent px-5 py-3 text-[15px] font-semibold transition-[transform,background-color,opacity] duration-150 select-none active:scale-[.97] disabled:opacity-50;
+  }
+  .btn-primary { @apply bg-amber text-amber-ink; }
+  .btn-secondary { @apply border-line bg-paper-2 text-ink; }
+  .btn-ghost { @apply bg-transparent text-muted hover:text-ink; }
+
+  .chip {
+    @apply rounded-full border border-line px-4 py-2 text-[13px] font-medium text-ink transition-colors aria-checked:border-ink aria-checked:bg-ink aria-checked:text-paper;
+  }
+
+  /* 영수증 아래쪽 톱니 */
+  .receipt {
+    --teeth: radial-gradient(circle at 8px 100%, transparent 7px, #000 7.5px) -8px 100% / 16px 100% repeat-x;
+    -webkit-mask: var(--teeth);
+    mask: var(--teeth);
+  }
+
+  .field {
+    @apply w-full rounded-md border border-line bg-paper px-3.5 py-3 text-[16px] text-ink outline-none placeholder:text-muted/70 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber;
+  }
+}
+
+/* 카페 장면 모션 — 세션 중에는 --scene-speed로 느리게 */
+.scene {
+  --scene-speed: 1;
+}
+.scene .steam {
+  animation: steam calc(5s * var(--scene-speed)) ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+.scene .steam-2 { animation-delay: calc(1.6s * var(--scene-speed)); }
+.scene .steam-3 { animation-delay: calc(3.1s * var(--scene-speed)); }
+.scene .flicker { animation: flicker calc(7s * var(--scene-speed)) ease-in-out infinite; }
+.scene .tone { transition: fill 4s ease, opacity 4s ease, stop-color 4s ease; }
+.scene .typing { animation: typing 0.45s ease-in-out infinite alternate; }
+/* 직원·손님 동작 */
+.scene .sway { transform-box: fill-box; }
+.scene .sway { transform-origin: 50% 100%; animation: sway calc(3.2s * var(--scene-speed)) ease-in-out infinite alternate; }
+.scene .pour { stroke-dasharray: 2 3; animation: pour 0.6s linear infinite; }
+.scene .screen-blink { animation: flicker 3s ease-in-out infinite; }
+
+@keyframes steam {
+  0% { opacity: 0; transform: translateY(8px) scaleX(1); }
+  30% { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-34px) scaleX(1.3); }
+}
+@keyframes sway {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(2deg); }
+}
+@keyframes pour {
+  to { stroke-dashoffset: -5; }
+}
+@keyframes typing {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1.5px); }
+}
+@keyframes flicker {
+  0%, 100% { opacity: 0.9; }
+  48% { opacity: 0.82; }
+  52% { opacity: 0.95; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene .steam, .scene .flicker, .scene .typing, .scene .sway, .scene .pour, .scene .screen-blink { animation: none; }
+  .scene .tone { transition: none; }
+}
