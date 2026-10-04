@@ -21,12 +21,16 @@
 
 - [x] 프론트 메인 화면 구현 (목 데이터) — `docs/main-screen-design.md`
 - [x] 프론트 첫 커밋 + GitHub frontend 레포 생성/연결
-- [ ] 카페 좌석 실시간 점유 (10석, 자리 선택, 다른 사용자 표시, 구경 모드) — 설계 `../backend/docs/superpowers/specs/2026-10-04-cafe-seats-design.md`. 단계 1(로그인 실제 연동)·3(프론트 좌석)이 프론트 작업
+- [x] 카페 좌석 실시간 점유 (10석, 자리 선택, 다른 사용자 표시, 구경 모드) — 설계 `../backend/docs/superpowers/specs/2026-10-04-cafe-seats-design.md`. 단계 1(로그인 실제 연동)·3(프론트 좌석)이 프론트 작업
 - [ ] 카페 손님 표시 + 1:1 대화 설계 — 실제 사용자(WebSocket + STOMP) + NPC(백엔드 RAG) (`docs/main-screen-design.md` "다음 작업")
 - [ ] 백엔드 연동 — `src/api/*.ts`의 mock 함수를 fetch로 교체 (회원 → 포인트 → 공부 세션 순)
 - [ ] 상점 화면
 
 ## 작업 일지 (최신순)
+
+### 2026-10-04
+- 카페 좌석 실시간 점유: 장면 10석(창가 스툴 4·부스 2·둥근 테이블 의자 4), STOMP(`@stomp/stompjs`)로 앉기·이동·실시간 반영, 캐릭터 위 닉네임(내 닉네임은 앰버), 캐릭터 클릭 시 정보 카드(공부 중/쉬는 중, 앉은 시간), 앉기 전·만석이면 주문 잠금. 계획 `docs/superpowers/plans/2026-10-04-cafe-seats-frontend.md`
+- 회원 API 실제 백엔드 연동 (PR #4), 메뉴 주문 방식·포인트 10분당 500P (PR #2)
 
 ### 2026-10-01
 - `/grill-me`로 메인 화면 설계 확정 → `docs/main-screen-design.md`
