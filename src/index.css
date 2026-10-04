@@ -125,6 +125,14 @@
 .scene .sway { transform-origin: 50% 100%; animation: sway calc(3.2s * var(--scene-speed)) ease-in-out infinite alternate; }
 .scene .pour { stroke-dasharray: 2 3; animation: pour 0.6s linear infinite; }
 .scene .screen-blink { animation: flicker 3s ease-in-out infinite; }
+/* 좌석 — 빈 의자 강조와 닉네임 (장면 색이라 다크 모드와 무관) */
+.scene .seat-empty { cursor: pointer; outline: none; }
+.scene .seat-empty polygon { fill: #F2A65A; opacity: 0.35; transition: opacity 150ms ease-out; }
+.scene .seat-empty:hover polygon, .scene .seat-empty:focus-visible polygon { opacity: 0.75; }
+.scene .seat-person { cursor: pointer; outline: none; }
+.scene .seat-person:focus-visible .name-tag { text-decoration: underline; }
+.scene .name-tag { fill: #FFF8EE; stroke: rgba(43, 30, 22, 0.6); stroke-width: 0.07; paint-order: stroke; font-weight: 600; }
+.scene .name-tag-mine { fill: #F2A65A; }
 
 @keyframes steam {
   0% { opacity: 0; transform: translateY(8px) scaleX(1); }
