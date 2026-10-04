@@ -6,6 +6,7 @@ import { earn, getBalance } from '../api/points.ts'
 import CafeInterior from '../components/CafeInterior.tsx'
 import Header from '../components/Header.tsx'
 import SessionPanel from '../components/SessionPanel.tsx'
+import { useCafeSeats } from '../hooks/useCafeSeats.ts'
 import { useStudySession } from '../hooks/useStudySession.ts'
 import { useTimeOfDay } from '../hooks/useTimeOfDay.ts'
 
@@ -24,6 +25,7 @@ function Cafe({ member }: { member: MemberInfo }) {
   const period = useTimeOfDay()
   const session = useStudySession(member.memberId)
   const onLogout = useLogout()
+  const seats = useCafeSeats()
 
   const balance = useQuery({ queryKey: ['points'], queryFn: getBalance })
   const earnPoints = useMutation({
@@ -35,7 +37,15 @@ function Cafe({ member }: { member: MemberInfo }) {
 
   return (
     <div className="relative min-h-dvh overflow-hidden">
-      <CafeInterior period={period} calm={active} studying={session.state.status === 'running'} />
+      <CafeInterior
+        period={period}
+        calm={active}
+        seats={seats.seats}
+        myId={member.memberId}
+        pickable={seats.connected}
+        onPick={seats.take}
+        onInspect={() => {}}
+      />
       <Header nickname={member.nickname} balance={balance.data?.balance} dim={active} onLogout={onLogout} />
       {/* 타이머는 카페를 가리지 않게 구석 카드로 (모바일은 아래쪽) */}
       <main className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10 flex justify-center sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[380px]">

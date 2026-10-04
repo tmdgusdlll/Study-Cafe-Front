@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import type { Period } from '../hooks/useTimeOfDay.ts'
 import { useZoomPan } from '../hooks/useZoomPan.ts'
+import { outfitOf, type Seat } from '../lib/seats.ts'
 
 // 로그인 후 홈 장면 — 카페 안 앞쪽 위에서 내려다보는 원근 시점 (동물의 숲 실내 느낌).
 // 좌표: x 왼쪽→오른쪽(-6~6), y 안쪽 벽→앞쪽(0~9), z 높이. 1 = 약 50cm
@@ -87,7 +88,7 @@ function RoundTable({ x, y, r = 0.85, k }: { x: number; y: number; r?: number; k
   )
 }
 
-// 등받이 의자 — 손님 자리 (다음 작업에서 손님이 앉는다)
+// 등받이 의자 — 손님 자리
 function Chair({ x, y, k }: { x: number; y: number; k: (hex: string) => string }) {
   return (
     <g>
@@ -122,25 +123,6 @@ function Pendant({ x, y, z = 3.9, lamp, glow }: { x: number; y: number; z?: numb
       <path d={`M${cx - u * 0.45} ${sy + u * 0.4} L${cx + u * 0.45} ${sy + u * 0.4} L${cx + u * 0.2} ${sy} L${cx - u * 0.2} ${sy} Z`} fill="#C9763A" />
       <ellipse className="tone" cx={cx} cy={sy + u * 0.4} rx={u * 0.3} ry={u * 0.08} fill="#FFE1A8" style={{ opacity: 0.3 + lamp * 0.7 }} />
     </g>
-  )
-}
-
-// 내 캐릭터 — 창가 자리에 등을 보이고 앉아 있다
-function Me({ v, k }: { v: V; k: (hex: string) => string }) {
-  return (
-    <At v={v}>
-      <g>
-        {/* 몸통·팔 */}
-        <path className="tone" d="M-0.42 0 C -0.46 -0.5, -0.36 -0.82, 0 -0.84 C 0.36 -0.82, 0.46 -0.5, 0.42 0 Z" style={{ fill: k('#7C8B6F') }} />
-        <ellipse className="tone" cx="-0.42" cy="-0.42" rx="0.13" ry="0.3" style={{ fill: k('#6E7F5E') }} transform="rotate(18 -0.42 -0.42)" />
-        <ellipse className="tone" cx="0.42" cy="-0.42" rx="0.13" ry="0.3" style={{ fill: k('#6E7F5E') }} transform="rotate(-18 0.42 -0.42)" />
-        {/* 큰 머리 (뒤통수) */}
-        <circle className="tone" cx="0" cy="-1.28" r="0.52" style={{ fill: k('#3A2A22') }} />
-        <ellipse className="tone" cx="-0.5" cy="-1.18" rx="0.1" ry="0.14" style={{ fill: k('#E8C4A8') }} />
-        <ellipse className="tone" cx="0.5" cy="-1.18" rx="0.1" ry="0.14" style={{ fill: k('#E8C4A8') }} />
-        <path d="M-0.28 -1.62 C -0.1 -1.75, 0.15 -1.72, 0.3 -1.58" stroke="#fff" strokeOpacity=".12" strokeWidth=".06" fill="none" strokeLinecap="round" />
-      </g>
-    </At>
   )
 }
 
@@ -189,6 +171,98 @@ function Person({ v, facing, shirt, apron, hair, anim, k }: { v: V; facing: 'fro
   )
 }
 
+// 좌석 ID(0~9)와 장면 위치. 백엔드는 ID만 안다. stool은 창을 보고(등이 보임), chair는 카메라를 본다
+type SeatPlace = { id: number; kind: 'stool' | 'chair'; x: number; y: number }
+const STOOLS: SeatPlace[] = [-2.6, -1.0, 0.6, 2.2].map((x, id) => ({ id, kind: 'stool', x, y: 1.6 }))
+const BOOTHS: { y: number; seat: SeatPlace }[] = [
+  { y: 2.6, seat: { id: 4, kind: 'chair', x: 4.8, y: 4.2 } },
+  { y: 7.0, seat: { id: 5, kind: 'chair', x: 4.8, y: 8.6 } },
+]
+const TABLES: { x: number; y: number; seats: [SeatPlace, SeatPlace] }[] = [
+  { x: -3.4, y: 4.6, seats: [{ id: 6, kind: 'chair', x: -4.5, y: 4.8 }, { id: 7, kind: 'chair', x: -2.3, y: 4.8 }] },
+  { x: 1.6, y: 4.4, seats: [{ id: 8, kind: 'chair', x: 0.5, y: 4.6 }, { id: 9, kind: 'chair', x: 2.7, y: 4.6 }] },
+]
+
+// 앉아 있는 사람 — back: 창을 보고 앉아 등이 보임, front: 카메라를 보고 앉음
+function Seated({ v, facing, shirt, hair, k }: { v: V; facing: 'front' | 'back'; shirt: string; hair: string; k: (hex: string) => string }) {
+  const skin = k('#E8C4A8')
+  return (
+    <At v={v}>
+      {/* 몸통·팔 */}
+      <path className="tone" d="M-0.42 0 C -0.46 -0.5, -0.36 -0.82, 0 -0.84 C 0.36 -0.82, 0.46 -0.5, 0.42 0 Z" style={{ fill: k(shirt) }} />
+      <ellipse className="tone" cx="-0.42" cy="-0.42" rx="0.13" ry="0.3" style={{ fill: shade(k(shirt), 0.9) }} transform="rotate(18 -0.42 -0.42)" />
+      <ellipse className="tone" cx="0.42" cy="-0.42" rx="0.13" ry="0.3" style={{ fill: shade(k(shirt), 0.9) }} transform="rotate(-18 0.42 -0.42)" />
+      {facing === 'back' ? (
+        <>
+          {/* 큰 머리 (뒤통수) */}
+          <circle className="tone" cx="0" cy="-1.28" r="0.52" style={{ fill: k(hair) }} />
+          <ellipse className="tone" cx="-0.5" cy="-1.18" rx="0.1" ry="0.14" style={{ fill: skin }} />
+          <ellipse className="tone" cx="0.5" cy="-1.18" rx="0.1" ry="0.14" style={{ fill: skin }} />
+        </>
+      ) : (
+        <>
+          <circle className="tone" cx="0" cy="-1.28" r="0.5" style={{ fill: skin }} />
+          <path className="tone" d="M-0.52 -1.28 C -0.56 -1.83, 0.56 -1.83, 0.52 -1.28 C 0.4 -1.56, -0.4 -1.56, -0.52 -1.28 Z" style={{ fill: k(hair) }} />
+          <circle cx="-0.17" cy="-1.24" r="0.05" fill="#2B1E16" />
+          <circle cx="0.17" cy="-1.24" r="0.05" fill="#2B1E16" />
+          <path d="M-0.1 -1.08 Q 0 -1.02, 0.1 -1.08" stroke="#2B1E16" strokeWidth="0.035" fill="none" strokeLinecap="round" />
+        </>
+      )}
+    </At>
+  )
+}
+
+// 키보드로도 누를 수 있는 장면 속 버튼. pointerdown을 막아야 장면 드래그(포인터 캡처)가 click을 가로채지 않는다
+function sceneButton(label: string, onPress: () => void) {
+  return {
+    role: 'button',
+    tabIndex: 0,
+    'aria-label': label,
+    onPointerDown: (e: { stopPropagation: () => void }) => e.stopPropagation(),
+    onClick: onPress,
+    onKeyDown: (e: { key: string; preventDefault: () => void }) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        onPress()
+      }
+    },
+  } as const
+}
+
+type SeatLayer = {
+  seats: Seat[]
+  myId: number | null
+  pickable: boolean
+  onPick: (seatId: number) => void
+  onInspect: (memberId: number) => void
+}
+
+// 좌석 하나: 앉은 사람(+닉네임) 또는 고를 수 있는 빈 의자 표시
+function SeatSpot({ place, layer, k }: { place: SeatPlace; layer: SeatLayer; k: (hex: string) => string }) {
+  const occupant = layer.seats[place.id]?.occupant ?? null
+  const v: V = [place.x, place.y, place.kind === 'stool' ? 1.25 : 0.95]
+  if (!occupant) {
+    if (!layer.pickable) return null
+    return (
+      <g className="seat-empty" {...sceneButton(`${place.id + 1}번 자리에 앉기`, () => layer.onPick(place.id))}>
+        <polygon points={disc(place.x, place.y, v[2] + 0.03, 0.55)} />
+      </g>
+    )
+  }
+  const outfit = outfitOf(occupant.memberId)
+  const mine = occupant.memberId === layer.myId
+  return (
+    <g className="seat-person" {...sceneButton(`${occupant.nickname} 정보 보기`, () => layer.onInspect(occupant.memberId))}>
+      <Seated v={v} facing={place.kind === 'stool' ? 'back' : 'front'} shirt={outfit.shirt} hair={outfit.hair} k={k} />
+      <At v={v}>
+        <text y="-1.95" textAnchor="middle" fontSize="0.3" className={mine ? 'name-tag name-tag-mine' : 'name-tag'}>
+          {occupant.nickname}
+        </text>
+      </At>
+    </g>
+  )
+}
+
 // 바깥 풍경: 카페가 높은 층에 있어 창밖으로 거리 건물들이 내려다보인다.
 // [x, 폭, 꼭대기 높이] — 바닥은 화면 아래로 충분히 내려 둔다
 const OUT = { far: -14, near: -6, ground: -12 }
@@ -227,17 +301,23 @@ type Props = {
   period: Period
   // 세션 진행·일시정지 중 — 움직임을 잔잔하게
   calm?: boolean
-  // 공부 중 — 노트북 불빛이 켜지고 캐릭터가 타자를 친다
-  studying?: boolean
+  // 좌석표 (없으면 좌석을 그리지 않는다: 로딩 중·연결 전)
+  seats?: Seat[] | null
+  myId?: number | null
+  // 빈 의자를 눌러 앉을 수 있는지 (연결되어 있을 때만)
+  pickable?: boolean
+  onPick?: (seatId: number) => void
+  onInspect?: (memberId: number) => void
 }
 
-export default function CafeInterior({ period, calm = false, studying = false }: Props) {
+export default function CafeInterior({ period, calm = false, seats = null, myId = null, pickable = false, onPick = () => {}, onInspect = () => {} }: Props) {
   const p = PALETTE[period]
   const k = (hex: string) => shade(hex, p.light)
   // ref(box)는 따로 꺼내 둔다 — 렌더 중 ref가 든 객체를 읽지 않도록
   const { box, ...zoom } = useZoomPan()
   const [sunX, sunY] = proj([3.2, OUT.far, -1.6])
   const sunR = unitAt([3.2, OUT.far, -1.6]) * 0.9
+  const layer: SeatLayer | null = seats ? { seats, myId, pickable, onPick, onInspect } : null
 
   return (
     <div
@@ -253,7 +333,8 @@ export default function CafeInterior({ period, calm = false, studying = false }:
         // 방 안쪽이 화면을 꽉 채우도록 잘라서 보여준다
         viewBox="-300 -212 600 440"
         preserveAspectRatio="xMidYMid slice"
-        aria-hidden="true"
+        role="group"
+        aria-label="카페 좌석"
       >
         <defs>
           <linearGradient id="room-sky" x1="0" y1="0" x2="0" y2="1">
@@ -263,10 +344,6 @@ export default function CafeInterior({ period, calm = false, studying = false }:
           <radialGradient id="room-lamp" cx=".5" cy=".5" r=".5">
             <stop offset="0" stopColor="#FFB866" stopOpacity=".5" />
             <stop offset="1" stopColor="#FFB866" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id="room-screen" cx=".5" cy=".5" r=".5">
-            <stop offset="0" stopColor="#CFE3F0" stopOpacity=".55" />
-            <stop offset="1" stopColor="#CFE3F0" stopOpacity="0" />
           </radialGradient>
           <clipPath id="room-glass">
             <polygon points={pts([WIN.x1, 0, WIN.z1], [WIN.x2, 0, WIN.z1], [WIN.x2, 0, WIN.z2], [WIN.x1, 0, WIN.z2])} />
@@ -364,9 +441,6 @@ export default function CafeInterior({ period, calm = false, studying = false }:
         ))}
         <Pendant x={-7.4} y={3.6} lamp={p.lamp} glow={[-7.4, 3.6, 1.9]} />
 
-        {/* 주문하는 손님 */}
-        <Stool x={-8.3} y={4.8} k={k} />
-        <Person v={[-5.7, 4.9, 0]} facing="back" shirt="#7C8EA8" hair="#2B1E16" anim="idle" k={k} />
 
         {/* 오른쪽 뒤 구석 화분 */}
         <Box at={[7.6, 0.4, 0]} size={[0.9, 0.9, 1]} color={k('#B5643E')} />
@@ -378,28 +452,26 @@ export default function CafeInterior({ period, calm = false, studying = false }:
           </g>
         </At>
 
-        {/* 창가 바 테이블 — 가운데가 내 자리 */}
+        {/* 창가 바 테이블 — 스툴 4개가 좌석 0~3 */}
         <Pendant x={0.6} y={0.7} lamp={p.lamp} glow={[0.6, 0.8, 1.9]} />
         <Box at={[-3.6, 0.2, 0]} size={[0.14, 0.14, 1.8]} color="#2B1E16" />
         <Box at={[4.5, 0.2, 0]} size={[0.14, 0.14, 1.8]} color="#2B1E16" />
         <Box at={[-3.8, 0.05, 1.8]} size={[8.6, 0.95, 0.14]} color={k('#8A5A3B')} top={k('#C08A5E')} />
         {/* 노트북: 내 쪽을 향해 열려 있어 카메라에는 뚜껑 뒷면이 보인다 */}
-        {studying && (
-          <ellipse cx={proj([0.6, 0.6, 2.3])[0]} cy={proj([0.6, 0.6, 2.3])[1]} rx={unitAt([0.6, 0.6, 2.3]) * 0.9} ry={unitAt([0.6, 0.6, 2.3]) * 0.55} fill="url(#room-screen)" />
-        )}
         <Box at={[0.15, 0.55, 1.94]} size={[0.9, 0.55, 0.04]} color="#55565C" />
         <Box at={[0.15, 0.42, 1.94]} size={[0.9, 0.06, 0.62]} color="#3A3B40" top="#5C5D63" />
         <Box at={[1.6, 0.45, 1.94]} size={[0.3, 0.3, 0.34]} color={k('#F3E9DC')} />
         <Steam v={[1.75, 0.6, 2.32]} size={0.55} />
         <Box at={[-2.9, 0.45, 1.94]} size={[0.3, 0.3, 0.34]} color={k('#F3E9DC')} />
-        {[-2.6, -1.0, 2.2, 3.8].map((x) => (
-          <Stool key={x} x={x} y={1.6} k={k} />
+        {STOOLS.map((place) => (
+          <g key={place.id}>
+            <Stool x={place.x} y={place.y} k={k} />
+            {layer && <SeatSpot place={place} layer={layer} k={k} />}
+          </g>
         ))}
-        <Stool x={0.6} y={1.6} k={k} />
-        <Me v={[0.6, 1.6, 1.25]} k={k} />
 
         {/* 오른쪽 벽 부스 좌석 (소파 + 사각 테이블) */}
-        {[2.6, 7.0].map((y) => (
+        {BOOTHS.map(({ y, seat }) => (
           <g key={y}>
             <Box at={[8.5, y, 0.9]} size={[0.5, 3, 1.3]} color={k('#8C4A32')} />
             <Box at={[7.5, y, 0]} size={[1.5, 3, 0.9]} color={k('#8C4A32')} top={k('#A85D40')} />
@@ -408,34 +480,25 @@ export default function CafeInterior({ period, calm = false, studying = false }:
             <Box at={[5.6, y + 0.6, 1.4]} size={[1.6, 1.8, 0.12]} color={k('#7A5038')} top={k('#C08A5E')} />
             <Box at={[6.1, y + 1.2, 1.52]} size={[0.26, 0.26, 0.3]} color={k('#F3E9DC')} />
             <Chair x={4.8} y={y + 1.6} k={k} />
+            {layer && <SeatSpot place={seat} layer={layer} k={k} />}
           </g>
         ))}
 
         {/* 가운데 러그 + 둥근 손님 테이블 */}
         <polygon className="tone" points={disc(-0.6, 6.6, 0.02, 3.4)} style={{ fill: k('#B5643E') }} opacity=".5" />
         <polygon className="tone" points={disc(-0.6, 6.6, 0.03, 2.9)} fill="none" stroke={k('#F3E9DC')} strokeOpacity=".35" strokeWidth="2" />
-        {[
-          [-3.4, 4.6],
-          [1.6, 4.4],
-          [-1.4, 8.4],
-          [-5.6, 9.2],
-          [3.2, 9.0],
-        ].map(([x, y]) => (
+        {TABLES.map(({ x, y, seats: pair }) => (
           <g key={`${x},${y}`}>
-            {y < 6 ? (
-              <Pendant x={x} y={y} lamp={p.lamp} glow={[x, y, 1.5]} />
-            ) : (
-              <g className="tone" style={{ opacity: p.lamp * 0.8 }}>
-                <ellipse cx={proj([x, y, 1.5])[0]} cy={proj([x, y, 1.5])[1]} rx={unitAt([x, y, 1.5]) * 2.4} ry={unitAt([x, y, 1.5]) * 1.3} fill="url(#room-lamp)" />
-              </g>
-            )}
-            <Chair x={x - 1.1} y={y + 0.2} k={k} />
+            <Pendant x={x} y={y} lamp={p.lamp} glow={[x, y, 1.5]} />
+            {pair.map((place) => (
+              <Chair key={place.id} x={place.x} y={place.y} k={k} />
+            ))}
             <RoundTable x={x} y={y} k={k} />
-            <Chair x={x + 1.1} y={y + 0.2} k={k} />
+            {/* 컵은 앉은 사람보다 먼저 그린다 (사람이 컵 앞에 앉는다) */}
+            {x === -3.4 && <Box at={[-3.6, 4.5, 1.5]} size={[0.26, 0.26, 0.3]} color={k('#F3E9DC')} />}
+            {layer && pair.map((place) => <SeatSpot key={place.id} place={place} layer={layer} k={k} />)}
           </g>
         ))}
-        <Box at={[-3.6, 4.5, 1.5]} size={[0.26, 0.26, 0.3]} color={k('#F3E9DC')} />
-        <Box at={[-1.2, 8.2, 1.5]} size={[0.26, 0.26, 0.3]} color={k('#F3E9DC')} />
 
         {/* 왼쪽 앞 화분 */}
         <Box at={[-8.6, 9.4, 0]} size={[1, 1, 1.1]} color={k('#B5643E')} />
