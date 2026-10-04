@@ -21,6 +21,7 @@
 
 - [x] 프론트 메인 화면 구현 (목 데이터) — `docs/main-screen-design.md`
 - [x] 프론트 첫 커밋 + GitHub frontend 레포 생성/연결
+- [ ] 카페 좌석 실시간 점유 (10석, 자리 선택, 다른 사용자 표시, 구경 모드) — 설계 `../backend/docs/superpowers/specs/2026-10-04-cafe-seats-design.md`. 단계 1(로그인 실제 연동)·3(프론트 좌석)이 프론트 작업
 - [ ] 카페 손님 표시 + 1:1 대화 설계 — 실제 사용자(WebSocket + STOMP) + NPC(백엔드 RAG) (`docs/main-screen-design.md` "다음 작업")
 - [ ] 백엔드 연동 — `src/api/*.ts`의 mock 함수를 fetch로 교체 (회원 → 포인트 → 공부 세션 순)
 - [ ] 상점 화면
