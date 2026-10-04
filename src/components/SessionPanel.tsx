@@ -8,6 +8,8 @@ import Receipt from './Receipt.tsx'
 type Props = {
   session: ReturnType<typeof useStudySession>
   onFinished: (result: SessionResult) => void
+  // 자리에 앉기 전에는 공부를 시작할 수 없다
+  locked: boolean
 }
 
 const spring = { type: 'spring', duration: 0.45, bounce: 0 } as const
@@ -21,7 +23,7 @@ const fade = {
 // 90 -> 1시간 30분
 const formatMinutes = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}시간${m % 60 ? ` ${m % 60}분` : ''}` : `${m}분`)
 
-export default function SessionPanel({ session, onFinished }: Props) {
+export default function SessionPanel({ session, onFinished, locked }: Props) {
   const { state, remainingMs } = session
   const [counts, setCounts] = useState<number[]>(MENU.map(() => 0))
   // 주문한 메뉴들의 시간을 합한 것이 목표 시간
@@ -102,11 +104,11 @@ export default function SessionPanel({ session, onFinished }: Props) {
                     </ul>
                     <button
                       type="button"
-                      disabled={goal === 0}
+                      disabled={locked || goal === 0}
                       onClick={() => session.start(goal)}
                       className="btn btn-primary w-full"
                     >
-                      {goal === 0 ? '메뉴를 골라주세요' : `주문하기 · ${formatMinutes(goal)}`}
+                      {locked ? '먼저 자리를 골라주세요' : goal === 0 ? '메뉴를 골라주세요' : `주문하기 · ${formatMinutes(goal)}`}
                     </button>
                   </>
                 )}
