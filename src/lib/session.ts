@@ -9,8 +9,9 @@ export const MENU = [
 ] as const
 
 const MINUTE = 60_000
-// 포인트를 받을 수 있는 최소 공부 시간 (분)
-const MIN_REWARD_MINUTES = 10
+// 포인트 적립 단위: 10분마다 500P (10분 미만은 0P)
+const REWARD_UNIT_MINUTES = 10
+const POINTS_PER_UNIT = 500
 
 export type ActiveSession = {
   status: 'running' | 'paused' | 'reached'
@@ -35,10 +36,9 @@ export type SessionState = { status: 'idle' } | ActiveSession | SessionResult
 
 export const IDLE: SessionState = { status: 'idle' }
 
-// 1분당 1P, 1분 미만 버림, 10분 미만이면 0P
+// 10분마다 500P, 10분 단위 미만은 버림
 export function pointsFor(studiedMs: number): number {
-  const minutes = Math.floor(studiedMs / MINUTE)
-  return minutes < MIN_REWARD_MINUTES ? 0 : minutes
+  return Math.floor(studiedMs / MINUTE / REWARD_UNIT_MINUTES) * POINTS_PER_UNIT
 }
 
 export function start(goalMinutes: number, now: number): ActiveSession {
