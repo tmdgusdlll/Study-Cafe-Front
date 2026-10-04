@@ -1,10 +1,17 @@
 // 공부 세션 상태와 포인트 계산 — 순수 함수만 둔다 (시간은 항상 인자로 받음)
 
-export const GOAL_PRESETS = [25, 50, 90] as const
+// 카페 메뉴처럼 고르는 목표 시간 (실제 결제 아님)
+export const MENU = [
+  { name: '에스프레소', minutes: 30, label: '30분' },
+  { name: '아이스 아메리카노', minutes: 60, label: '1시간' },
+  { name: '카페라떼', minutes: 120, label: '2시간' },
+  { name: '시그니처 라떼', minutes: 180, label: '3시간' },
+] as const
 
 const MINUTE = 60_000
-// 포인트를 받을 수 있는 최소 공부 시간 (분)
-const MIN_REWARD_MINUTES = 10
+// 포인트 적립 단위: 10분마다 500P (10분 미만은 0P)
+const REWARD_UNIT_MINUTES = 10
+const POINTS_PER_UNIT = 500
 
 export type ActiveSession = {
   status: 'running' | 'paused' | 'reached'
@@ -29,10 +36,9 @@ export type SessionState = { status: 'idle' } | ActiveSession | SessionResult
 
 export const IDLE: SessionState = { status: 'idle' }
 
-// 1분당 1P, 1분 미만 버림, 10분 미만이면 0P
+// 10분마다 500P, 10분 단위 미만은 버림
 export function pointsFor(studiedMs: number): number {
-  const minutes = Math.floor(studiedMs / MINUTE)
-  return minutes < MIN_REWARD_MINUTES ? 0 : minutes
+  return Math.floor(studiedMs / MINUTE / REWARD_UNIT_MINUTES) * POINTS_PER_UNIT
 }
 
 export function start(goalMinutes: number, now: number): ActiveSession {

@@ -5,10 +5,10 @@ import { validateSignup } from './validation.ts'
 
 const MIN = 60_000
 
-// 포인트: 10분 미만 0P, 이후 1분당 1P (1분 미만 버림)
+// 포인트: 10분 미만 0P, 이후 10분마다 500P (10분 단위 미만 버림)
 assert.equal(pointsFor(9 * MIN + 59_000), 0)
-assert.equal(pointsFor(10 * MIN), 10)
-assert.equal(pointsFor(24 * MIN + 50_000), 24)
+assert.equal(pointsFor(10 * MIN), 500)
+assert.equal(pointsFor(24 * MIN + 50_000), 1000)
 
 // 일시정지한 시간은 공부 시간에서 빠진다
 let s = start(25, 0)
@@ -22,11 +22,11 @@ s = tick(s, 40 * MIN)
 assert.equal(s.status, 'reached')
 assert.equal(remainingOf(s, 99 * MIN), 0)
 const done = finish(s, 99 * MIN)
-assert.deepEqual([done.earned, done.completed], [25, true])
+assert.deepEqual([done.earned, done.completed], [1000, true])
 
 // 중도 종료: 공부한 만큼
 const early = finish(start(50, 0), 24 * MIN + 50_000)
-assert.deepEqual([early.earned, early.completed], [24, false])
+assert.deepEqual([early.earned, early.completed], [1000, false])
 
 // 새로고침이면 그대로 진행
 const running = start(25, 0)

@@ -87,6 +87,14 @@
     @apply rounded-full border border-line px-4 py-2 text-[13px] font-medium text-ink transition-colors aria-checked:border-ink aria-checked:bg-ink aria-checked:text-paper;
   }
 
+  .menu-item {
+    @apply flex items-center rounded-md border border-transparent px-3 py-2 text-ink transition-colors data-[active=true]:border-amber/50 data-[active=true]:bg-amber/15;
+  }
+
+  .qty-btn {
+    @apply size-6 rounded-full border border-line text-ink leading-none transition-[background-color,opacity,transform] hover:bg-amber hover:text-amber-ink active:scale-[.92] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink;
+  }
+
   /* 영수증 아래쪽 톱니 */
   .receipt {
     --teeth: radial-gradient(circle at 8px 100%, transparent 7px, #000 7.5px) -8px 100% / 16px 100% repeat-x;
@@ -112,7 +120,6 @@
 .scene .steam-3 { animation-delay: calc(3.1s * var(--scene-speed)); }
 .scene .flicker { animation: flicker calc(7s * var(--scene-speed)) ease-in-out infinite; }
 .scene .tone { transition: fill 4s ease, opacity 4s ease, stop-color 4s ease; }
-.scene .typing { animation: typing 0.45s ease-in-out infinite alternate; }
 /* 직원·손님 동작 */
 .scene .sway { transform-box: fill-box; }
 .scene .sway { transform-origin: 50% 100%; animation: sway calc(3.2s * var(--scene-speed)) ease-in-out infinite alternate; }
@@ -131,10 +138,6 @@
 @keyframes pour {
   to { stroke-dashoffset: -5; }
 }
-@keyframes typing {
-  from { transform: translateY(0); }
-  to { transform: translateY(-1.5px); }
-}
 @keyframes flicker {
   0%, 100% { opacity: 0.9; }
   48% { opacity: 0.82; }
@@ -142,6 +145,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene .steam, .scene .flicker, .scene .typing, .scene .sway, .scene .pour, .scene .screen-blink { animation: none; }
+  .scene .steam, .scene .flicker, .scene .sway, .scene .pour, .scene .screen-blink { animation: none; }
   .scene .tone { transition: none; }
 }
