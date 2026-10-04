@@ -1,7 +1,7 @@
 // 세션·포인트 로직 셀프 체크 — `node src/lib/session.check.ts`
 import assert from 'node:assert/strict'
 import { finish, formatClock, pause, pointsFor, remainingOf, restore, resume, start, tick } from './session.ts'
-import { validateSignup } from './validation.ts'
+import { validateEmail, validateNickname } from './validation.ts'
 
 const MIN = 60_000
 
@@ -44,8 +44,8 @@ assert.equal(formatClock(24 * MIN + 13_000), '24:13')
 assert.equal(formatClock(500), '00:01')
 
 // 회원가입 검증 문구는 백엔드와 동일
-assert.equal(validateSignup({ email: 'not-an-email', password: 'password123!', nickname: '테스터' }), '이메일 형식이 올바르지 않습니다')
-assert.equal(validateSignup({ email: 'a@b.co', password: 'password123!', nickname: 'a' }), '닉네임은 2~10자여야 합니다')
-assert.equal(validateSignup({ email: 'a@b.co', password: 'password123!', nickname: '라떼' }), null)
+assert.equal(validateEmail('not-an-email'), '이메일 형식이 올바르지 않습니다')
+assert.equal(validateNickname('a'), '닉네임은 2~10자여야 합니다')
+assert.equal(validateNickname('라떼'), null)
 
 console.log('session check: ok')
