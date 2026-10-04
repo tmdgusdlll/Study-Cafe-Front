@@ -16,6 +16,15 @@ export function seatGuide(seats: Seat[] | null, connected: boolean, memberId: nu
   return seats.every((s) => s.occupant) ? 'full' : 'pick'
 }
 
+// 카드로 보고 있는 손님의 한 번의 방문. 같은 회원이라도 떠났다가 다시 앉으면 앉은 시각이 달라 다른 방문이다
+export type Visit = { memberId: number; sittingSince: string }
+
+// 자리를 옮겨도 찾고(앉은 시각 유지), 떠났거나 다시 앉았으면 null
+export function findVisit(seats: Seat[] | null, visit: Visit | null): Occupant | null {
+  if (!seats || !visit) return null
+  return seats.find((s) => s.occupant?.memberId === visit.memberId && s.occupant.sittingSince === visit.sittingSince)?.occupant ?? null
+}
+
 // 방금 앉았어요 / 40분째 앉아 있어요 / 1시간 5분째 앉아 있어요
 export function sittingLabel(since: string, now: number): string {
   const minutes = Math.floor((now - Date.parse(since)) / 60_000)

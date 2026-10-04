@@ -1,6 +1,6 @@
 // 좌석 파생 값 셀프 체크 — `node src/lib/seats.check.ts`
 import assert from 'node:assert/strict'
-import { mySeatId, outfitOf, type Seat, seatGuide, sittingLabel } from './seats.ts'
+import { findVisit, mySeatId, outfitOf, type Seat, seatGuide, sittingLabel } from './seats.ts'
 
 const empty = (seatId: number): Seat => ({ seatId, occupant: null })
 const taken = (seatId: number, memberId: number): Seat => ({
@@ -32,5 +32,13 @@ assert.equal(sittingLabel(since, at(65)), '1시간 5분째 앉아 있어요')
 // 옷 색은 회원마다 고정
 assert.deepEqual(outfitOf(7), outfitOf(7))
 assert.notDeepEqual(outfitOf(1).shirt, outfitOf(2).shirt)
+
+// 카드로 보던 손님: 자리를 옮기면 따라가고, 떠났다가 다시 앉으면(앉은 시각이 다르면) 찾지 않는다
+const visit = { memberId: 7, sittingSince: '2026-10-04T10:00:00Z' }
+assert.equal(findVisit(seats((i) => (i === 5 ? taken(5, 7) : empty(i))), visit)?.memberId, 7)
+const returned = seats((i) => (i === 2 ? { seatId: 2, occupant: { ...taken(2, 7).occupant!, sittingSince: '2026-10-04T11:00:00Z' } } : empty(i)))
+assert.equal(findVisit(returned, visit), null)
+assert.equal(findVisit(null, visit), null)
+assert.equal(findVisit(seats(empty), null), null)
 
 console.log('seats check: ok')
