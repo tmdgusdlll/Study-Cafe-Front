@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { login } from '../api/auth.ts'
-import { ApiError } from '../api/mock.ts'
+import { ApiError } from '../api/client.ts'
 import Field from '../components/Field.tsx'
 import SceneLayout from '../components/SceneLayout.tsx'
 

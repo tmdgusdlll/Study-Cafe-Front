@@ -20,13 +20,3 @@ export function validateNickname(nickname: string): string | null {
   if (nickname.length < 2 || nickname.length > 10) return '닉네임은 2~10자여야 합니다'
   return null
 }
-
-export function validateSignup(body: { email: string; password: string; nickname: string }): string | null {
-  return validateEmail(body.email) ?? validatePassword(body.password) ?? validateNickname(body.nickname)
-}
-
-export function validateLogin(body: { email: string; password: string }): string | null {
-  if (!body.email.trim()) return '이메일을 입력해주세요'
-  if (!body.password.trim()) return '비밀번호를 입력해주세요'
-  return null
-}

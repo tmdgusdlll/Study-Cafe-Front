@@ -1,6 +1,7 @@
 // 포인트 API (목) — 백엔드 GET /api/v1/points/balance 응답 { memberId, balance }
 import { currentMemberId } from './auth.ts'
-import { type ApiResponse, fail, ok, read, unwrap, write } from './mock.ts'
+import { type ApiResponse, unwrap } from './client.ts'
+import { fail, ok, read, write } from './mock.ts'
 
 export type PointBalance = { memberId: number; balance: number }
 
