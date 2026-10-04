@@ -1,6 +1,12 @@
 // 공부 세션 상태와 포인트 계산 — 순수 함수만 둔다 (시간은 항상 인자로 받음)
 
-export const GOAL_PRESETS = [25, 50, 90] as const
+// 카페 메뉴처럼 고르는 목표 시간 (실제 결제 아님)
+export const MENU = [
+  { name: '에스프레소', minutes: 30, label: '30분' },
+  { name: '아이스 아메리카노', minutes: 60, label: '1시간' },
+  { name: '카페라떼', minutes: 120, label: '2시간' },
+  { name: '시그니처 라떼', minutes: 180, label: '3시간' },
+] as const
 
 const MINUTE = 60_000
 // 포인트를 받을 수 있는 최소 공부 시간 (분)

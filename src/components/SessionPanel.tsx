@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import type { useStudySession } from '../hooks/useStudySession.ts'
-import { formatClock, GOAL_PRESETS, type SessionResult } from '../lib/session.ts'
+import { formatClock, MENU, type SessionResult } from '../lib/session.ts'
 import { CollapseIcon, ExpandIcon } from './icons.tsx'
 import Receipt from './Receipt.tsx'
 
@@ -18,9 +18,14 @@ const fade = {
   transition: { duration: 0.2 },
 }
 
+// 90 -> 1시간 30분
+const formatMinutes = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}시간${m % 60 ? ` ${m % 60}분` : ''}` : `${m}분`)
+
 export default function SessionPanel({ session, onFinished }: Props) {
   const { state, remainingMs } = session
-  const [goal, setGoal] = useState<number>(GOAL_PRESETS[0])
+  const [counts, setCounts] = useState<number[]>(MENU.map(() => 0))
+  // 주문한 메뉴들의 시간을 합한 것이 목표 시간
+  const goal = MENU.reduce((sum, item, i) => sum + item.minutes * counts[i], 0)
   const [collapsed, setCollapsed] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
@@ -28,6 +33,9 @@ export default function SessionPanel({ session, onFinished }: Props) {
   const goalMinutes = active ? Math.round(state.goalMs / 60_000) : goal
   // 목표 달성 시에는 완료하기 버튼이 보이도록 접힌 상태를 무시
   const isCollapsed = collapsed && (state.status === 'running' || state.status === 'paused')
+
+  const order = (i: number, delta: number) =>
+    setCounts((c) => c.map((n, j) => (j === i ? Math.min(9, Math.max(0, n + delta)) : n)))
 
   const finish = () => {
     setConfirming(false)
@@ -69,24 +77,36 @@ export default function SessionPanel({ session, onFinished }: Props) {
               <motion.div key={view} {...fade}>
                 {view === 'idle' && (
                   <>
-                    <p className="text-sm text-muted">오늘은 얼마나 앉아 있을까요?</p>
-                    <div className="display-digits mt-3 mb-6 text-[64px] sm:text-[80px]">{formatClock(goal * 60_000)}</div>
-                    <div role="radiogroup" aria-label="목표 시간" className="mb-6 flex justify-center gap-2">
-                      {GOAL_PRESETS.map((m) => (
-                        <button
-                          key={m}
-                          type="button"
-                          role="radio"
-                          aria-checked={goal === m}
-                          onClick={() => setGoal(m)}
-                          className="chip"
-                        >
-                          {m}분
-                        </button>
+                    <p className="text-sm text-muted">오늘은 무엇을 주문하시겠어요?</p>
+                    <ul aria-label="메뉴" className="mt-4 mb-6 flex flex-col gap-1">
+                      {MENU.map((item, i) => (
+                        <li key={item.name} data-active={counts[i] > 0} className="menu-item">
+                          <span className="font-serif text-lg">{item.name}</span>
+                          <span className="mx-2 flex-1 translate-y-1 border-b border-dotted border-current opacity-40" />
+                          <span className="mr-3 text-sm tabular-nums">{item.label}</span>
+                          <button
+                            type="button"
+                            aria-label={`${item.name} 하나 빼기`}
+                            disabled={counts[i] === 0}
+                            onClick={() => order(i, -1)}
+                            className="qty-btn"
+                          >
+                            −
+                          </button>
+                          <span className="w-5 text-center text-sm tabular-nums">{counts[i]}</span>
+                          <button type="button" aria-label={`${item.name} 하나 더`} onClick={() => order(i, 1)} className="qty-btn">
+                            +
+                          </button>
+                        </li>
                       ))}
-                    </div>
-                    <button type="button" onClick={() => session.start(goal)} className="btn btn-primary w-full">
-                      공부 시작
+                    </ul>
+                    <button
+                      type="button"
+                      disabled={goal === 0}
+                      onClick={() => session.start(goal)}
+                      className="btn btn-primary w-full"
+                    >
+                      {goal === 0 ? '메뉴를 골라주세요' : `주문하기 · ${formatMinutes(goal)}`}
                     </button>
                   </>
                 )}

@@ -125,11 +125,11 @@ function Pendant({ x, y, z = 3.9, lamp, glow }: { x: number; y: number; z?: numb
   )
 }
 
-// 내 캐릭터 — 창가 자리에 등을 보이고 앉아 있다. 공부 중이면 타자 치듯 살짝 움직인다
-function Me({ v, typing, k }: { v: V; typing: boolean; k: (hex: string) => string }) {
+// 내 캐릭터 — 창가 자리에 등을 보이고 앉아 있다
+function Me({ v, k }: { v: V; k: (hex: string) => string }) {
   return (
     <At v={v}>
-      <g className={typing ? 'typing' : undefined}>
+      <g>
         {/* 몸통·팔 */}
         <path className="tone" d="M-0.42 0 C -0.46 -0.5, -0.36 -0.82, 0 -0.84 C 0.36 -0.82, 0.46 -0.5, 0.42 0 Z" style={{ fill: k('#7C8B6F') }} />
         <ellipse className="tone" cx="-0.42" cy="-0.42" rx="0.13" ry="0.3" style={{ fill: k('#6E7F5E') }} transform="rotate(18 -0.42 -0.42)" />
@@ -396,7 +396,7 @@ export default function CafeInterior({ period, calm = false, studying = false }:
           <Stool key={x} x={x} y={1.6} k={k} />
         ))}
         <Stool x={0.6} y={1.6} k={k} />
-        <Me v={[0.6, 1.6, 1.25]} typing={studying} k={k} />
+        <Me v={[0.6, 1.6, 1.25]} k={k} />
 
         {/* 오른쪽 벽 부스 좌석 (소파 + 사각 테이블) */}
         {[2.6, 7.0].map((y) => (
